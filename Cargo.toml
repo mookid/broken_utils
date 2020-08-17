@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "cmdtime",
     "re-sort",
     "repeat",
     "trimcolor",
