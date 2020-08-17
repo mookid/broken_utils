@@ -6,6 +6,12 @@ use std::process;
 
 use regex::Regex;
 
+use termcolor::Color;
+use termcolor::ColorChoice;
+use termcolor::ColorSpec;
+use termcolor::StandardStream;
+use termcolor::WriteColor;
+
 const USAGE: &str = r#"Usage: $BIN_NAME [options] [file...]
 Sort matches in the given files.
 If file is omitted or is '-', read from standard input.
@@ -97,7 +103,7 @@ fn parse_re(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) 
     }
 }
 
-fn parse_path(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
+fn parse_paths(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     match args.next() {
         None => false,
         Some(d) => {
@@ -122,40 +128,34 @@ fn parse_options(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = Strin
     }
 }
 
-fn parse_paths(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
-    if let Some(arg) = args.peek() {
-        let arg = arg.clone();
-        match &*arg {
-            _ => parse_path(opts, args),
-        }
-    } else {
-        false
-    }
+type Loc = Option<(usize, usize)>;
+
+fn loc(from: usize, to: usize) -> Loc {
+    Some((from, to))
 }
 
-fn extract_match(re: &Regex, text: &str) -> Option<String> {
+type Match = (String, Loc);
+
+fn extract_match(re: &Regex, text: &str) -> Option<Match> {
     match re.find(text) {
         None => None,
-        Some(m) => {
-            // eprint!("{}  {}", m.as_str(), text);
-            Some(m.as_str().to_string())
-        }
+        Some(m) => Some((m.as_str().to_string(), loc(m.start(), m.end()))),
     }
 }
 
-fn extract_field(nfield: usize, text: &str) -> Option<String> {
+fn extract_field(nfield: usize, text: &str) -> Option<Match> {
     if nfield == 0 {
         invalid_field();
     }
     if let Some(m) = text.split_whitespace().nth(nfield - 1) {
-        Some(m.to_string())
+        Some((m.to_string(), None))
     } else {
         None
     }
 }
 
 impl Filter {
-    fn extract(&self, text: &str) -> Option<String> {
+    fn extract(&self, text: &str) -> Option<Match> {
         match self {
             Filter::Re(re) => extract_match(re, text),
             Filter::Field(nfield) => extract_field(*nfield, text),
@@ -174,7 +174,7 @@ fn validate_opts(opts: &Opts) -> Filter {
     }
 }
 
-type Item = (String, String);
+type Item = (String, String, Loc);
 
 fn collect(f: &mut impl std::io::Read, filter: &Filter, results: &mut Vec<Item>) {
     let mut f = BufReader::new(f);
@@ -185,8 +185,9 @@ fn collect(f: &mut impl std::io::Read, filter: &Filter, results: &mut Vec<Item>)
             Ok(0) => break,
             Err(err) => die_error("read error", err),
             Ok(_) => {
-                if let Some(m) = filter.extract(&buf) {
-                    results.push((m, buf.trim_end().to_string()))
+                let buf = buf.trim_end().to_string();
+                if let Some((m, loc)) = filter.extract(&buf) {
+                    results.push((m, buf, loc))
                 }
             }
         }
@@ -219,7 +220,22 @@ fn main() {
         }
     }
     results.sort();
-    for p in results {
-        println!("{}", p.1);
+
+    let mut w = StandardStream::stdout(ColorChoice::Always);
+    let mut matchcolor = ColorSpec::new();
+    matchcolor.set_fg(Some(Color::Red));
+    matchcolor.set_bold(true);
+    for (_, text, loc) in results {
+        if let Some((from, to)) = loc {
+            assert!(from <= to);
+            assert!(to <= text.len());
+            print!("{}", &text[..from]);
+            let _ = w.set_color(&matchcolor);
+            print!("{}", &text[from..to]);
+            let _ = w.reset();
+            println!("{}", &text[to..]);
+        } else {
+            println!("{}", text);
+        }
     }
 }
