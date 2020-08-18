@@ -76,18 +76,15 @@ fn parse_interval(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = Stri
 fn parse_arg(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
         let arg = arg.clone();
-        if arg.starts_with("--") {
-            match &*arg {
-                "--help" => usage(0),
-                "--version" => show_version(),
-                "--beeps" => parse_beeps(opts, args),
-                "--interval" => parse_interval(opts, args),
-                arg => invalid_opt(arg),
-            }
-        } else if arg.starts_with("-") {
-            if arg == "-n" {
-                parse_interval(opts, args)
-            } else {
+        match &*arg {
+            "--help" => usage(0),
+            "--version" => show_version(),
+            "--beeps" => parse_beeps(opts, args),
+            "--interval" => parse_interval(opts, args),
+            _ if arg.starts_with("--") => invalid_opt(arg),
+            _ if !arg.starts_with("-") => false,
+            "-n" => parse_interval(opts, args),
+            _ => {
                 for ch in arg.chars().skip(1) {
                     match ch {
                         'V' => show_version(),
@@ -97,8 +94,6 @@ fn parse_arg(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>)
                 }
                 true
             }
-        } else {
-            false
         }
     } else {
         false
@@ -110,14 +105,11 @@ fn main() {
     let mut args = std::env::args().skip(1).peekable();
     while parse_arg(&mut opts, &mut args) {}
 
-    let mut args: Vec<_> = args.collect();
-    if args.is_empty() {
-        usage(EXIT_ERROR)
-    }
-    let mut pname = String::new();
-    std::mem::swap(&mut args[0], &mut pname);
-    let mut p = process::Command::new(pname);
-    for arg in args.iter().skip(1) {
+    let mut p = match args.next() {
+        None => usage(EXIT_ERROR),
+        Some(pname) => process::Command::new(pname),
+    };
+    for arg in args {
         p.arg(arg);
     }
 
