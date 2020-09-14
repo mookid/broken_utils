@@ -1,4 +1,5 @@
-GO_BIN=$(GOPATH)/bin
+GO_BIN = $(GOPATH)/bin
+GO_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 .SUFFIXES:  .go .exe
 
@@ -10,16 +11,20 @@ NAMES=                                                            \
 	tasks                                                     \
 	vs                                                        \
 
-PROGS=$(addsuffix .exe, $(NAMES))
-SOURCES=$(addsuffix .go, $(NAMES))
+PROGS = $(addprefix $(GO_DIR),$(addsuffix .exe, $(NAMES)))
+SOURCES = $(addprefix $(GO_DIR),$(addsuffix .go, $(NAMES)))
 
-all: $(PROGS)
+go.all: $(PROGS)
 
 .go.exe:
 	go build -o $@ $<
 
-install:
+go.install:
 	cp $(PROGS) $(GO_BIN)
 
-clean:
+go.clean:
 	rm -f $(PROGS)
+
+all: go.all
+install: go.install
+clean: go.clean

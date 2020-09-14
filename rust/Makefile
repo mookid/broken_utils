@@ -1,10 +1,16 @@
-CARGO_BIN=$(HOME)/.cargo/bin
+CARGO_BIN = $(HOME)/.cargo/bin
+RUST_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+MANIFEST = --manifest-path $(RUST_DIR)/Cargo.toml
 
-all:
-	cargo build --release
+rust.all:
+	cargo build --release $(MANIFEST)
 
-install:
-	cp target/release/*.exe $(CARGO_BIN)
+rust.install:
+	cp $(RUST_DIR)/target/release/*.exe $(CARGO_BIN)
 
-clean:
-	cargo clean
+rust.clean:
+	cargo clean $(MANIFEST)
+
+all: rust.all
+install: rust.install
+clean: rust.clean
