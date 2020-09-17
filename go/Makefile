@@ -5,6 +5,7 @@ GO_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 NAMES=                                                            \
 	git-ff                                                    \
+	l                                                         \
 	namespaces                                                \
 	rm_orig_files                                             \
 	s                                                         \
