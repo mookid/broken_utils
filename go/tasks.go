@@ -16,7 +16,7 @@ func die(err error) {
 func main() {
 	regex := "(public|private|protected).*Task.* (\\w+)(<\\w+>)?\\("
 	r := regexp.MustCompile(regex)
-	cmd := exec.Command("rg", "-n", regex, "-g", "*.cs", "-g", "!src/tests/*")
+	cmd := exec.Command("rg", "-n", regex, "-g", "*.cs", "-g", "!src/tests/*", "-M0")
 	out, err := cmd.Output()
 	die(err)
 	for _, line := range strings.Split(string(out), "\n") {
