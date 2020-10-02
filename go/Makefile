@@ -10,6 +10,7 @@ NAMES=                                                            \
 	rm_orig_files                                             \
 	s                                                         \
 	tasks                                                     \
+	token                                                     \
 	vs                                                        \
 
 PROGS = $(addprefix $(GO_DIR),$(addsuffix .exe, $(NAMES)))

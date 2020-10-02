@@ -2,4 +2,7 @@ module broken_utils
 
 go 1.15
 
-require github.com/fatih/color v1.9.0
+require (
+	github.com/atotto/clipboard v0.1.2
+	github.com/fatih/color v1.9.0
+)
