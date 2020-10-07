@@ -8,6 +8,7 @@ NAMES=                                                            \
 	l                                                         \
 	namespaces                                                \
 	rm_orig_files                                             \
+	re_kill                                                   \
 	s                                                         \
 	tasks                                                     \
 	token                                                     \
