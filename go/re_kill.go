@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -61,16 +62,44 @@ func chooseFrom(pids []string) {
 
 type proc = struct{ name, pid string }
 
-func unquote(str string) string {
-	str = strings.TrimRight(str, "\"")
-	str = strings.TrimLeft(str, "\"")
-	return str
-}
-
-func parse(str string) (proc, error) {
-	// TODO proper parsing of "fi,eld2","field2"
-	fields := strings.Split(str, ",")
-	return proc{unquote(fields[0]), unquote(fields[1])}, nil
+func parse(str string) (*proc, error) {
+	quoting := false
+	lo := 0
+	fields := make([]bytes.Buffer, 2)
+	ifield := 0
+	escaping := false
+	for ic, c := range str {
+		// TODO  we don't check that the quotes are balanced
+		// but who cares?
+		if ifield >= 2 {
+			break
+		}
+		if escaping {
+			escaping = false
+			continue
+		}
+		if c == '\\' {
+			if quoting {
+				fields[ifield].WriteString(str[lo:ic])
+				lo = ic + 1
+			}
+			escaping = true
+			continue
+		}
+		if c == '"' {
+			quoting = !quoting
+			if quoting {
+				lo = ic + 1
+			} else {
+				fields[ifield].WriteString(str[lo:ic])
+				ifield++
+			}
+		}
+	}
+	if ifield < 2 {
+		return nil, fmt.Errorf("parsing error")
+	}
+	return &proc{fields[0].String(), fields[1].String()}, nil
 }
 
 func main() {
@@ -106,7 +135,7 @@ func main() {
 			}
 			proc, err := parse(procString)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "parsing error: '%s'", procString)
+				fmt.Fprintf(os.Stderr, "parsing error: '%s'\n", procString)
 				continue
 			}
 			fmt.Printf("%-8d %s\n", len(pids), proc.name)
