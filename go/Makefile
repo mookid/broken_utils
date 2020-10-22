@@ -19,27 +19,30 @@ TESTED_NAMES=                                                     \
 	re_kill                                                   \
 
 PROGS = $(addprefix $(GO_DIR),$(addsuffix .exe, $(NAMES)))
-SOURCES = $(addprefix $(GO_DIR),$(addsuffix .go, $(NAMES)))
-
 TESTS = $(addprefix $(GO_DIR),$(addsuffix .test, $(TESTED_NAMES)))
+TEST_PROGS = $(addprefix $(GO_DIR),$(addsuffix .testexe, $(TESTED_NAMES)))
 
 go.all: $(PROGS)
+go.all: $(TEST_PROGS)
 
 go.tests: $(TESTS)
 
-.go.exe:
+%.exe: %.go
 	go build -o $@ $<
+
+%.test: %_test.go %.go
+	go test -v $^
+
+%.testexe: %_test.go %.go
+	go test -c -o $@ $^
 
 go.install:
 	cp $(PROGS) $(GO_BIN)
 
 go.clean:
-	rm -f $(PROGS)
+	rm -f $(PROGS) $(TEST_PROGS)
 
 all: go.all
 install: go.install
 clean: go.clean
 tests: go.tests
-
-%.test: %_test.go %.go
-	go test -v $^
