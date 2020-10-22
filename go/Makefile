@@ -4,6 +4,7 @@ GO_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 .SUFFIXES:  .go .exe
 
 NAMES=                                                            \
+	git-codereview                                            \
 	git-ff                                                    \
 	l                                                         \
 	namespaces                                                \
