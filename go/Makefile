@@ -9,9 +9,9 @@ NAMES=                                                            \
 	git-zip                                                   \
 	l                                                         \
 	namespaces                                                \
-	re_kill                                                   \
+	re-kill                                                   \
 	rgw                                                       \
-	rm_orig_files                                             \
+	rm-orig-files                                             \
 	s                                                         \
 	sha256sum                                                 \
 	tasks                                                     \
@@ -19,7 +19,7 @@ NAMES=                                                            \
 	vs                                                        \
 
 TESTED_NAMES=                                                     \
-	re_kill                                                   \
+	re-kill                                                   \
 	rgw                                                       \
 	tasks                                                     \
 
