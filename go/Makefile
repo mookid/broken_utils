@@ -6,6 +6,7 @@ GO_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 NAMES=                                                            \
 	git-codereview                                            \
 	git-ff                                                    \
+	git-zip                                                   \
 	l                                                         \
 	namespaces                                                \
 	rm_orig_files                                             \
