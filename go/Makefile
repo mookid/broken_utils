@@ -12,6 +12,7 @@ NAMES=                                                            \
 	rm_orig_files                                             \
 	re_kill                                                   \
 	s                                                         \
+	sha256sum                                                 \
 	tasks                                                     \
 	token                                                     \
 	vs                                                        \
