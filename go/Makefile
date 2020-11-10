@@ -9,8 +9,9 @@ NAMES=                                                            \
 	git-zip                                                   \
 	l                                                         \
 	namespaces                                                \
-	rm_orig_files                                             \
 	re_kill                                                   \
+	rgw                                                       \
+	rm_orig_files                                             \
 	s                                                         \
 	sha256sum                                                 \
 	tasks                                                     \
@@ -19,6 +20,7 @@ NAMES=                                                            \
 
 TESTED_NAMES=                                                     \
 	re_kill                                                   \
+	rgw                                                       \
 
 PROGS = $(addprefix $(GO_DIR),$(addsuffix .exe, $(NAMES)))
 TESTS = $(addprefix $(GO_DIR),$(addsuffix .test, $(TESTED_NAMES)))
