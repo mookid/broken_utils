@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -62,7 +63,33 @@ func chooseFrom(slns []string) {
 	fmt.Printf("open solution: ")
 }
 
+func usage() {
+	println(`usage: vs [args...]
+Options:
+  -k       kill existing devenv instances
+`)
+	os.Exit(2)
+}
+
+func doKillExisting() (err error) {
+	cmd := exec.Command("re-kill", "devenv.exe")
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	cmd.Wait()
+	return nil
+}
+
 func main() {
+	killExisting := flag.Bool("k", false, "kill existing devenv instances")
+	flag.Usage = usage
+	flag.Parse()
+
+	if *killExisting {
+		die(doKillExisting())
+	}
+
 	ctx, c := context.WithCancel(context.Background())
 	cmd := exec.CommandContext(ctx, "rg", "--files")
 	results, err := cmd.StdoutPipe()
