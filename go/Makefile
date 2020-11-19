@@ -21,6 +21,7 @@ NAMES=                                                            \
 TESTED_NAMES=                                                     \
 	re_kill                                                   \
 	rgw                                                       \
+	tasks                                                     \
 
 PROGS = $(addprefix $(GO_DIR),$(addsuffix .exe, $(NAMES)))
 TESTS = $(addprefix $(GO_DIR),$(addsuffix .test, $(TESTED_NAMES)))

@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+var (
+	regex string         = "(public|private|protected).*Task[=]* (\\w+)(<\\w+>)?\\("
+	r     *regexp.Regexp = regexp.MustCompile(regex)
+)
+
 func die(err error) {
 	if err != nil {
 		panic(err)
@@ -14,10 +19,7 @@ func die(err error) {
 }
 
 func main() {
-	regex := "(public|private|protected).*Task.* (\\w+)(<\\w+>)?\\("
-	r := regexp.MustCompile(regex)
-	cmd := exec.Command("rg", "-n", regex, "-g", "*.cs", "-g", "!src/tests/*", "-M0")
-	out, err := cmd.Output()
+	out, err := exec.Command("rg", "-n", regex, "-g", "*.cs", "-g", "!src/tests/*", "-M0").Output()
 	die(err)
 	for _, line := range strings.Split(string(out), "\n") {
 		if line == "" {
