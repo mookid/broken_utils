@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -102,16 +103,49 @@ func parse(str string) (*proc, error) {
 	return &proc{fields[0].String(), fields[1].String()}, nil
 }
 
+func usage() {
+	println(`usage: re_kill [options] [pattern]
+Select and kill a given process.
+Options:
+  pattern       if provided, kill processes whose name patches the pattern
+  -a            kill all matching processes; pattern is mandatory
+`)
+	os.Exit(2)
+}
+
+func collectArgs() (args []string) {
+	for i := 0; ; i++ {
+		arg := flag.Arg(i)
+		if arg == "" {
+			break
+		}
+		args = append(args, arg)
+	}
+	return args
+}
+
+func killAllAndExit(pids []string) {
+	for _, pid := range pids {
+		doKill(pid)
+	}
+	os.Exit(0)
+}
+
 func main() {
-	withFilter := false
+	killAll := flag.Bool("a", false, "")
+	flag.Usage = usage
+	flag.Parse()
 	ctx, c := context.WithCancel(context.Background())
 	cmd := exec.CommandContext(ctx, "tasklist.exe", "/nh", "/fo", "csv")
 	results, err := cmd.StdoutPipe()
 	die(err)
 
-	if len(os.Args) > 1 {
-		withFilter = true
-		args := append([]string{"-i"}, os.Args[1:]...)
+	filters := collectArgs()
+	if len(filters) == 0 && *killAll {
+		usage()
+	}
+	if len(filters) > 0 {
+		args := append([]string{"-i"}, filters...)
 		cmd2 := exec.CommandContext(ctx, "rg", args...)
 		cmd2.Stdin = results
 		results, err = cmd2.StdoutPipe()
@@ -122,26 +156,40 @@ func main() {
 	out := bufio.NewReader(results)
 	die(cmd.Start())
 
-	setupSignals()
+	if !*killAll {
+		setupSignals()
+	}
 
 	var pids []string
+	var doneReading chan (interface{}) = make(chan (interface{}), 1)
+	var s struct{}
 
 	go func() {
 		for {
 			procString, err := readline(out)
-			if err == io.EOF {
-				chooseFrom(pids)
-				return
+			if err == io.EOF || procString == "" {
+				break
 			}
 			proc, err := parse(procString)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "parsing error: '%s'\n", procString)
 				continue
 			}
-			fmt.Printf("%-8d %s\n", len(pids), proc.name)
+			if !*killAll {
+				fmt.Printf("%-8d %s\n", len(pids), proc.name)
+			}
 			pids = append(pids, proc.pid)
 		}
+		doneReading <- s
+		if !*killAll {
+			chooseFrom(pids)
+		}
 	}()
+
+	if *killAll {
+		<-doneReading
+		killAllAndExit(pids)
+	}
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -150,11 +198,8 @@ func main() {
 			continue
 		}
 		text = strings.TrimSpace(text)
-		if text == "*" && withFilter {
-			for _, pid := range pids {
-				doKill(pid)
-			}
-			os.Exit(0)
+		if text == "*" && len(filters) > 0 {
+			killAllAndExit(pids)
 		}
 		selected, err := strconv.Atoi(text)
 		if err == nil && 0 <= selected && selected < len(pids) {
