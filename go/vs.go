@@ -72,7 +72,7 @@ Options:
 }
 
 func doKillExisting() (err error) {
-	cmd := exec.Command("re-kill", "devenv.exe")
+	cmd := exec.Command("re-kill", "-a", "devenv.exe")
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 	if err := cmd.Start(); err != nil {
 		return err
