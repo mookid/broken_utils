@@ -54,7 +54,7 @@ func LogFormat() string {
 }
 
 func listBranches() (branches []*branch, err error) {
-	data, err := exec.Command("git", "for-each-ref", "--format="+LogFormat(), "refs/heads").Output()
+	data, err := exec.Command("git", "for-each-ref", "--format="+LogFormat()).Output()
 	lines := strings.Split(string(data), "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
