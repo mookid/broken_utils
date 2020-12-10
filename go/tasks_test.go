@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_regex(t *testing.T) {
 	tt := []struct {
@@ -16,9 +18,11 @@ func Test_regex(t *testing.T) {
 		{line: "provate async Task FooAsync(", doMatch: false},
 		{line: "provate async Task FooAsync(", doMatch: false},
 		{line: `public const string TaskName = "Foo"`, doMatch: false},
+		{line: `public static async Task<F<T>> Foo<T>(this Task<T> t)`, doMatch: true, methodName: "Foo"},
 	}
 
 	for _, tc := range tt {
+		println(tc.line)
 		matches := r.FindStringSubmatch(tc.line)
 		if (len(matches) >= 2) != tc.doMatch {
 			m := "<2"
@@ -26,10 +30,10 @@ func Test_regex(t *testing.T) {
 				m = ">=2"
 			}
 			t.Errorf("line: %s exp: %s actual: %v", tc.line, m, len(matches))
+		}
 
-			if tc.doMatch && tc.methodName != matches[2] {
-				t.Errorf("line: %s exp: %s actual: %v", tc.line, tc.methodName, matches[2])
-			}
+		if tc.doMatch && tc.methodName != matches[2] {
+			t.Errorf("line: %s exp: %s actual: %v", tc.line, tc.methodName, matches[2])
 		}
 	}
 

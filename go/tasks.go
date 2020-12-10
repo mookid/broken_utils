@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	regex string         = "(public|private|protected).*Task[=]* (\\w+)(<\\w+>)?\\("
+	regex string         = "(public|private|protected).*Task[^^=]* (\\w+)(<\\w+>)?\\("
 	r     *regexp.Regexp = regexp.MustCompile(regex)
 )
 
