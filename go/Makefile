@@ -9,6 +9,7 @@ NAMES=                                                            \
 	git-ff                                                    \
 	git-where-is                                              \
 	git-zip                                                   \
+	gr                                                        \
 	l                                                         \
 	namespaces                                                \
 	re-kill                                                   \
