@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 )
 
 func exit_like_child(err error) {
@@ -35,6 +37,12 @@ func main() {
 			arg = "origin/master..."
 		case "-h", "--help":
 			usage()
+		}
+		if strings.HasPrefix(arg, "-") {
+			i, err := strconv.Atoi(arg[1:])
+			if err == nil && i > 0 {
+				arg = fmt.Sprintf("HEAD~%d..", i)
+			}
 		}
 		args = append(args, arg)
 	}
