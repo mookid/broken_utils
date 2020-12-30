@@ -104,7 +104,7 @@ func parse(str string) (*proc, error) {
 }
 
 func usage() {
-	println(`usage: re_kill [options] [pattern]
+	println(`usage: re-kill [options] [pattern]
 Select and kill a given process.
 Options:
   pattern       if provided, kill processes whose name patches the pattern
