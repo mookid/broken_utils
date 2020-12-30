@@ -31,6 +31,8 @@ func main() {
 		switch arg {
 		case "-c":
 			arg = "--cached"
+		case "-m":
+			arg = "origin/master..."
 		case "-h", "--help":
 			usage()
 		}
