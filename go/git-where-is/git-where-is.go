@@ -18,7 +18,7 @@ var (
 )
 
 func usage() {
-	fmt.Println(`git-where-is [words...]
+	fmt.Printf(`git-where-is [words...]
 List branches that contains a commit matching a certain pattern.
 `)
 	os.Exit(2)
