@@ -23,6 +23,7 @@ func usage() {
 Forward to git diff.
 OPTIONS:
   -c                  View staged changes (--cached)
+  -m                  View diff from origin/master
   args                Other args are forwarded to git diff`)
 	os.Exit(2)
 }
