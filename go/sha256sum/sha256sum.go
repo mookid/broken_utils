@@ -6,9 +6,26 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 var code int
+
+func sha256sumDir(dirname string) {
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		failure(err)
+		return
+	}
+	for _, file := range files {
+		sha256sum(filepath.Join(dirname, file.Name()))
+	}
+}
+
+func failure(err error) {
+	fmt.Fprintf(os.Stderr, "%v", err)
+	code = 2
+}
 
 func sha256sum(filename string) {
 	var (
@@ -19,14 +36,20 @@ func sha256sum(filename string) {
 	if filename == "-" {
 		f = os.Stdin
 	} else {
-		f, err = os.Open(filename)
+		fileInfo, err := os.Stat(filename)
+		if err == nil {
+			if fileInfo.IsDir() {
+				sha256sumDir(filename)
+				return
+			}
+			f, err = os.Open(filename)
+		}
 	}
 	if err == nil {
 		data, err = ioutil.ReadAll(f)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		code = 2
+		failure(err)
 		return
 	}
 	sum := sha256.Sum256(data)
