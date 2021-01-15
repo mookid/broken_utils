@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func exit_like_child(err error) {
+func exitLikeChild(err error) {
 	exiterr, ok := err.(*exec.ExitError)
 	if ok {
 		os.Exit(exiterr.ExitCode())
@@ -50,5 +50,5 @@ func main() {
 	cmd := exec.Command("git", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	exit_like_child(cmd.Run())
+	exitLikeChild(cmd.Run())
 }
