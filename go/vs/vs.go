@@ -103,6 +103,7 @@ func main() {
 	var slns []string
 
 	go func() {
+		firstLine := ""
 		for {
 			sln, err := readline(out)
 			if err == io.EOF {
@@ -113,7 +114,15 @@ func main() {
 			if !strings.HasSuffix(sln, "sln") {
 				continue
 			}
-			fmt.Printf("%-8d %s\n", len(slns), sln)
+			line := fmt.Sprintf("%-8d %s", len(slns), sln)
+			if len(slns) == 0 {
+				firstLine = line
+			} else if len(slns) == 1 {
+				fmt.Println(firstLine)
+				fmt.Println(line)
+			} else {
+				fmt.Println(line)
+			}
 			slns = append(slns, sln)
 		}
 	}()
