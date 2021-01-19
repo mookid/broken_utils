@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -30,13 +31,23 @@ func repoName(url string) string {
 	return "" // unreachable
 }
 
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		usage()
 	}
 	url := os.Args[1]
 	rn := repoName(url)
-	cmd := exec.Command("git", "clone", url, "D:/src/"+rn)
+	dst := "D:/src/" + rn
+	if fileExists(dst) {
+		fmt.Fprintf(os.Stderr, "destination file %s already exists", dst)
+		os.Exit(2)
+	}
+	cmd := exec.Command("git", "clone", url, dst)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	die(cmd.Run())
