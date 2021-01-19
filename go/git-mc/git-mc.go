@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -23,7 +22,6 @@ func main() {
 	if !found {
 		panic("HOME variable not set")
 	}
-	fmt.Println(filepath.Join(home, ".emacs.d", ".emacs.git"))
 	commandArgs := []string{"runemacs.exe", "-Q", "-l", filepath.Join(home, ".emacs.d", ".emacs.git")}
 
 	conflicts := false

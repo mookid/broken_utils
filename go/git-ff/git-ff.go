@@ -33,7 +33,7 @@ func main() {
 	if len(os.Args) > 2 {
 		usage()
 	}
-	cmd := exec.Command("rg", "--files", "--hidden")
+	cmd := exec.Command("rg", "--files", "--hidden", "--path-separator=/")
 	cmd.Stderr = os.Stderr
 	results, err := cmd.StdoutPipe()
 	die(err)
