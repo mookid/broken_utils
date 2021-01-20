@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"os/exec"
+
+	"github.com/mattn/go-isatty"
 )
 
 func die(err error) {
@@ -25,7 +27,10 @@ func main() {
 		"ls":   {"-lH"},
 		"less": {"-RFMi"},
 	}
-	prog := "ls"
+	prog := "less"
+	if isatty.IsTerminal(os.Stdin.Fd()) {
+		prog = "ls"
+	}
 	filename := ""
 
 	if len(os.Args) == 2 {
@@ -46,6 +51,7 @@ func main() {
 		args = append(args, filename)
 	}
 	cmd := exec.Command(prog, args...)
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	die(cmd.Run())
