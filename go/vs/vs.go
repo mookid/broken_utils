@@ -91,7 +91,7 @@ func main() {
 	}
 
 	ctx, c := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, "rg", "--files")
+	cmd := exec.CommandContext(ctx, "rg", "--files", "--no-ignore", "--hidden")
 	results, err := cmd.StdoutPipe()
 	cancel = c
 	die(err)
