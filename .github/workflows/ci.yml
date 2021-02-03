@@ -22,7 +22,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-          
+
     - name: Install GNU make
       uses: crazy-max/ghaction-chocolatey@v1
       with:
@@ -35,7 +35,7 @@ jobs:
       env:
         CARGO_BIN: C:/bin
         GOBIN: C:/bin
-        
+
     - name: Upload artifacts
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
