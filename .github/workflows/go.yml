@@ -30,15 +30,15 @@ jobs:
 
     - name: Run make
       run: |
-        md %GOBIN%
+        mkdir C:/bin
         make -e all tests install
       env:
-        CARGO_BIN: C:\\bin
-        GOBIN: C:\\bin
+        CARGO_BIN: C:/bin
+        GOBIN: C:/bin
         
     - name: Upload artifacts
       uses: softprops/action-gh-release@v1
       with:
-        files: C:\\bin\\*
+        files: C:/bin/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
