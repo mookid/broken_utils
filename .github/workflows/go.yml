@@ -21,8 +21,7 @@ jobs:
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: stable
-          components: rustfmt
+        toolchain: stable
           
     - name: Install GNU make
       uses: crazy-max/ghaction-chocolatey@v1
@@ -30,5 +29,16 @@ jobs:
         args: install make
 
     - name: Run make
-      run: make all
-  
+      run: |
+        md %GOBIN%
+        make -e all tests install
+      env:
+        CARGO_BIN: C:\bin
+        GOBIN: C:\bin
+        
+    - name: Upload artifacts
+      uses: softprops/action-gh-release@v1
+      with:
+        files: C:\bin\*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}:
