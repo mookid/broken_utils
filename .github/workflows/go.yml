@@ -41,4 +41,4 @@ jobs:
       with:
         files: C:\bin\*
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
