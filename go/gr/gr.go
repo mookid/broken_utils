@@ -47,6 +47,26 @@ func readFile(filename string) {
 	}
 }
 
+func hdrLength(fileMatch string) int {
+	hdrLength := 0
+	inHdr := true
+	for _, ch := range fileMatch {
+		switch {
+		case ch == ':':
+			inHdr = false
+		case '0' <= ch && ch <= '9':
+			hdrLength++
+		default:
+			hdrLength = 0
+			inHdr = false
+		}
+		if !inHdr {
+			break
+		}
+	}
+	return hdrLength
+}
+
 func main() {
 	fromStdin := true
 	for _, arg := range os.Args[1:] {
@@ -56,11 +76,14 @@ func main() {
 	if fromStdin {
 		readFile("-")
 	}
-	b := color.New(color.FgCyan).SprintFunc()
+	b := color.New(color.FgCyan)
+	g := color.New(color.FgGreen)
 	for filename, results := range groups {
-		fmt.Println(b(filename))
+		b.Println(filename)
 		for _, result := range results {
-			fmt.Print(result)
+			n := hdrLength(result)
+			g.Print(result[:n])
+			fmt.Print(result[n:])
 		}
 	}
 }

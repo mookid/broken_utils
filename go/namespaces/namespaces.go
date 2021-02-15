@@ -19,8 +19,8 @@ func main() {
 	cmd := exec.Command("rg", "^^namespace", "-g", "*.cs")
 	out, err := cmd.Output()
 	die(err)
-	r := color.New(color.FgRed).SprintFunc()
-	g := color.New(color.FgGreen).SprintFunc()
+	r := color.New(color.FgRed)
+	g := color.New(color.FgGreen)
 	for _, line := range strings.Split(string(out), "\n") {
 		if line == "" {
 			continue
@@ -42,8 +42,8 @@ func main() {
 
 		if actual != expected {
 			fmt.Printf("WARN: inconsistent namespace: %s\n", line)
-			fmt.Printf("\t%-20s\t%s\n", "actual", r(actual))
-			fmt.Printf("\t%-20s\t%s\n", "expected", g(expected))
+			r.Printf("\t%-20s\t%s\n", "actual", actual)
+			g.Printf("\t%-20s\t%s\n", "expected", expected)
 		}
 	}
 }
