@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,7 +15,9 @@ func die(err error) {
 }
 
 func usage() {
-	println("usage: clone repo-url")
+	println(`usage: clone repo-url
+OPTIONS:
+-d                  change destination directory name`)
 	os.Exit(2)
 }
 
@@ -37,12 +40,19 @@ func fileExists(path string) bool {
 }
 
 func main() {
-	if len(os.Args) != 2 {
+	repoDiskName := flag.String("d", "", "")
+	flag.Usage = usage
+	flag.Parse()
+
+	if flag.NArg() != 1 {
 		usage()
 	}
-	url := os.Args[1]
+	url := flag.Arg(0)
 	rn := repoName(url)
-	dst := "D:/src/" + rn
+	if *repoDiskName == "" {
+		*repoDiskName = rn
+	}
+	dst := "D:/src/" + *repoDiskName
 	if fileExists(dst) {
 		fmt.Fprintf(os.Stderr, "destination file %s already exists", dst)
 		os.Exit(2)
