@@ -3,6 +3,7 @@
 members = [
     "cmdtime",
     "finddups",
+    "ff",
     "re-sort",
     "repeat",
     "trimcolor",

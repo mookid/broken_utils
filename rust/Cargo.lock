@@ -17,6 +17,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ff"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "walkdir",
+]
+
+[[package]]
 name = "finddups"
 version = "0.1.0"
 dependencies = [
