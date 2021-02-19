@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,28 +19,40 @@ func run(name string, arg ...string) error {
 	return cmd.Run()
 }
 
-func switch_to(branch_name string) {
-	fmt.Printf("Trying to switch to branch %s\n", branch_name)
-	if err := run("git", "switch", branch_name); err == nil {
-		os.Exit(0)
+func switchTo(branchName string) bool {
+	fmt.Printf("Trying to switch to branch %s\n", branchName)
+	err := run("git", "switch", branchName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "git switch: %v\n", err)
 	}
+	return err == nil
 }
 
-func fetch_all() {
+func fetchAll() bool {
 	fmt.Println("Fetching remote branches")
-	if err := run("git", "fetch", "--all"); err != nil {
-		os.Exit(2)
+	err := run("git", "fetch", "--all")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "git fetch: %v\n", err)
 	}
+	return err == nil
 }
 
 func main() {
-	if len(os.Args) != 2 {
+	flag.Usage = usage
+	flag.Parse()
+	if flag.NArg() != 1 {
 		usage()
 	}
-	branch_name := os.Args[1]
+	branchName := flag.Arg(0)
 
-	switch_to(branch_name)
-	fetch_all()
-	switch_to(branch_name)
+	if switchTo(branchName) {
+		return
+	}
+	if !fetchAll() {
+		os.Exit(2)
+	}
+	if switchTo(branchName) {
+		return
+	}
 	os.Exit(2)
 }

@@ -2,14 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
-
-func die(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	now := time.Now()
@@ -20,7 +15,9 @@ func main() {
 		"Europe/Paris",
 	} {
 		loc, err := time.LoadLocation(locstring)
-		die(err)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error while loading location %s: %v\n", loc, err)
+		}
 		fmt.Printf("%20v %v\n", loc, now.In(loc).Format("15:04"))
 	}
 }
