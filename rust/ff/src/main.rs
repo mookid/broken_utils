@@ -12,7 +12,9 @@ const USAGE: &str = r#"Usage: $BIN_NAME [[-v] filter...]
 Recursively traverse directories, listing all files.
 Arguments:
      filter         filter filenames matching the given regexp
-  -v filter         filter out filenames matching the given regexp"#;
+  -v filter         filter out filenames matching the given regexp
+  .                 strip common working directory prefix
+  /                 add common working directory prefix"#;
 const BIN_NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const EXIT_ERROR: i32 = 2;
@@ -41,6 +43,7 @@ fn die_error<E: Display>(msg: &str, err: E) -> ! {
 struct Opts {
     filters: Vec<Regex>,
     filters_neg: Vec<Regex>,
+    strip_prefix: bool,
 }
 
 fn compile_re(arg: &str) -> Regex {
@@ -53,6 +56,15 @@ fn compile_re(arg: &str) -> Regex {
 fn add_filter(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.next() {
         opts.filters.push(compile_re(&arg));
+        true
+    } else {
+        false
+    }
+}
+
+fn strip_prefix(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
+    if let Some(arg) = args.next() {
+        opts.strip_prefix = &arg == ".";
         true
     } else {
         false
@@ -77,6 +89,7 @@ fn parse_options(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = Strin
             "-h" => usage(0),
             "--help" => usage(0),
             "--version" => show_version(),
+            "." | "/" => strip_prefix(opts, args),
             "-v" => add_filter_neg(opts, args),
             _ => add_filter(opts, args),
         }
@@ -116,6 +129,11 @@ fn main() {
             continue;
         }
         let filename = entry.path();
+        let filename = if opts.strip_prefix {
+            filename.strip_prefix(&root).ok().unwrap_or(filename)
+        } else {
+            filename
+        };
         let filename = filename.display().to_string();
         let filename = filename.replace("\\", "/");
 
