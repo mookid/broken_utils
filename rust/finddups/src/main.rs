@@ -1,7 +1,9 @@
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::hash::Hasher;
 use std::io::Read;
+use std::io::Write;
 use std::iter::Peekable;
 use std::path::PathBuf;
 use std::process;
@@ -17,6 +19,7 @@ Arguments:
                       if omitted, use the current working directory"#;
 const BIN_NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+const EXIT_ERROR: i32 = 2;
 
 fn usage(code: i32) -> ! {
     eprintln!("{}", USAGE.replace("$BIN_NAME", BIN_NAME));
@@ -26,6 +29,11 @@ fn usage(code: i32) -> ! {
 fn show_version() -> ! {
     eprintln!("{} {}", BIN_NAME, VERSION);
     process::exit(0);
+}
+
+fn die_error<E: Display>(msg: &str, err: E) -> ! {
+    eprintln!("{}: {}", msg, err);
+    process::exit(EXIT_ERROR);
 }
 
 #[derive(Default)]
@@ -78,10 +86,25 @@ fn hash_content(filename: &PathBuf) -> Result<u64, std::io::Error> {
     Ok(hasher.finish())
 }
 
+fn ignore_broken_pipe<T>(r: std::io::Result<T>) {
+    if let Err(err) = r {
+        if err.kind() == std::io::ErrorKind::BrokenPipe {
+            return;
+        }
+        die_error("write", err)
+    }
+}
+
 fn main() {
     let mut opts = Default::default();
     let mut args = std::env::args().skip(1).peekable();
     while parse_options(&mut opts, &mut args) {}
+
+    let stdout = std::io::stdout();
+    let mut stdout = stdout.lock();
+
+    let stderr = std::io::stderr();
+    let mut stderr = stderr.lock();
 
     let mut roots = vec![];
     if opts.roots.is_empty() {
@@ -122,11 +145,12 @@ fn main() {
                     Ok(hash) => {
                         unique_files2.entry(hash).or_insert(vec![]).push(filename);
                     }
-                    Err(e) => eprintln!(
-                        "error while hashing contents for file {}: {}",
+                    Err(e) => ignore_broken_pipe(write!(
+                        stderr,
+                        "error while hashing contents for file {}: {}\n",
                         filename.display(),
                         e
-                    ),
+                    )),
                 }
             }
             for (_, entries) in &unique_files2 {
@@ -134,10 +158,10 @@ fn main() {
                     if first {
                         first = false;
                     } else {
-                        println!();
+                        ignore_broken_pipe(write!(stdout, "\n"));
                     }
                     for entry in entries {
-                        println!("{}", entry.display());
+                        ignore_broken_pipe(write!(stdout, "{}\n", entry.display()));
                     }
                 }
             }

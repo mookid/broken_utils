@@ -123,6 +123,9 @@ fn main() {
             && !opts.filters_neg.iter().any(|f| f.is_match(&filename))
         {
             if let Err(err) = writeln!(stdout, "{}", filename) {
+                if err.kind() == std::io::ErrorKind::BrokenPipe {
+                    return;
+                }
                 die_error("write", err)
             }
         }
