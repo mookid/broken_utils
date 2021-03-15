@@ -293,7 +293,7 @@ fn parse_append(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String
 fn parse_arg(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
         let arg: String = arg.clone();
-        match &*arg {
+        match &arg[..] {
             "--output" | "-o" => parse_output(opts, args),
             "--help" => usage(0),
             "--version" => show_version(),

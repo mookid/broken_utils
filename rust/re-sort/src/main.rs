@@ -115,8 +115,7 @@ fn parse_paths(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>
 
 fn parse_options(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
-        let arg = arg.clone();
-        match &*arg {
+        match &arg[..] {
             "--help" => usage(0),
             "--version" => show_version(),
             "-r" => parse_re(opts, args),

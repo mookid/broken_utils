@@ -52,8 +52,7 @@ fn add_root(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) 
 
 fn parse_options(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
-        let arg = arg.clone();
-        match &*arg {
+        match &arg[..] {
             "-h" => usage(0),
             "--help" => usage(0),
             "--version" => show_version(),
@@ -145,9 +144,9 @@ fn main() {
                     Ok(hash) => {
                         unique_files2.entry(hash).or_insert(vec![]).push(filename);
                     }
-                    Err(e) => ignore_broken_pipe(write!(
+                    Err(e) => ignore_broken_pipe(writeln!(
                         stderr,
-                        "error while hashing contents for file {}: {}\n",
+                        "error while hashing contents for file {}: {}",
                         filename.display(),
                         e
                     )),
@@ -158,10 +157,10 @@ fn main() {
                     if first {
                         first = false;
                     } else {
-                        ignore_broken_pipe(write!(stdout, "\n"));
+                        ignore_broken_pipe(writeln!(stdout));
                     }
                     for entry in entries {
-                        ignore_broken_pipe(write!(stdout, "{}\n", entry.display()));
+                        ignore_broken_pipe(writeln!(stdout, "{}", entry.display()));
                     }
                 }
             }

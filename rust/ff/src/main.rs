@@ -85,7 +85,7 @@ fn add_filter_neg(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = Stri
 fn parse_options(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
         let arg = arg.clone();
-        match &*arg {
+        match &arg[..] {
             "-h" => usage(0),
             "--help" => usage(0),
             "--version" => show_version(),

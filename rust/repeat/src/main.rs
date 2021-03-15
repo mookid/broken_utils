@@ -76,7 +76,7 @@ fn parse_interval(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = Stri
 fn parse_arg(opts: &mut Opts, args: &mut Peekable<impl Iterator<Item = String>>) -> bool {
     if let Some(arg) = args.peek() {
         let arg = arg.clone();
-        match &*arg {
+        match &arg[..] {
             "--help" => usage(0),
             "--version" => show_version(),
             "--beeps" => parse_beeps(opts, args),
