@@ -4,6 +4,7 @@ members = [
     "cmdtime",
     "finddups",
     "ff",
+    "put_",
     "re-sort",
     "repeat",
     "trimcolor",
