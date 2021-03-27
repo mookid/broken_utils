@@ -39,10 +39,7 @@ func cat(filename string) {
 		bf := bufio.NewReader(f)
 		for {
 			line, err := bf.ReadBytes('\n')
-			if err != nil {
-				if err == io.EOF {
-					return
-				}
+			if err != nil && err != io.EOF {
 				fmt.Fprintf(os.Stderr, "read %s: %v\n", filename, err)
 				code = 2
 				return
@@ -52,6 +49,9 @@ func cat(filename string) {
 			}
 			fmt.Printf("%6d\t", n)
 			os.Stdout.Write(line)
+			if len(line) == 0 || line[len(line)-1] != '\n' {
+				os.Stdout.Write([]byte("\n"))
+			}
 			n++
 		}
 	} else {
