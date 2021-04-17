@@ -33,6 +33,7 @@ func main() {
 	if len(os.Args) > 2 {
 		usage()
 	}
+	// TODO  CommandContext?
 	cmd := exec.Command("rg", "--files", "--hidden", "--path-separator=/")
 	cmd.Stderr = os.Stderr
 	results, err := cmd.StdoutPipe()

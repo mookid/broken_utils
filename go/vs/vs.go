@@ -64,7 +64,7 @@ func chooseFrom(slns []string) {
 }
 
 func usage() {
-	println(`usage: vs [args...]
+	println(`usage: vs [options...] patterns...
 Options:
   -k       kill existing devenv instances
 `)
@@ -82,9 +82,10 @@ func doKillExisting() (err error) {
 }
 
 func main() {
-	killExisting := flag.Bool("k", false, "kill existing devenv instances")
+	killExisting := flag.Bool("k", false, "")
 	flag.Usage = usage
 	flag.Parse()
+	patterns := flag.Args()
 
 	if *killExisting {
 		die(doKillExisting())
@@ -93,6 +94,15 @@ func main() {
 	ctx, c := context.WithCancel(context.Background())
 	cmd := exec.CommandContext(ctx, "rg", "--files", "--no-ignore", "--hidden")
 	results, err := cmd.StdoutPipe()
+
+	if len(patterns) != 0 {
+		args := append([]string{"-i", "-M0"}, patterns...)
+		cmd2 := exec.CommandContext(ctx, "rg", args...)
+		cmd2.Stderr = os.Stderr
+		cmd2.Stdin = results
+		results, err = cmd2.StdoutPipe()
+		die(cmd2.Start())
+	}
 	cancel = c
 	die(err)
 	out := bufio.NewReader(results)
