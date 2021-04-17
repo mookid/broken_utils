@@ -28,6 +28,20 @@ OPTIONS:
 	os.Exit(2)
 }
 
+var mainBranchName string
+
+func inferMainBranchName() string {
+	if mainBranchName == "" {
+		for _, name := range []string{"origin/master", "origin/main"} {
+			if exec.Command("git", "show-ref", "--verify", "--quiet", "refs/remotes/"+name).Run() == nil {
+				mainBranchName = name
+				break
+			}
+		}
+	}
+	return mainBranchName
+}
+
 func main() {
 	args := []string{"diff", "--patch-with-stat", "--stat-width=1000"}
 	for _, arg := range os.Args[1:] {
@@ -35,7 +49,7 @@ func main() {
 		case "-c":
 			arg = "--cached"
 		case "-m":
-			arg = "origin/master..."
+			arg = inferMainBranchName() + "..."
 		case "-h", "--help":
 			usage()
 		}
