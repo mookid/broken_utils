@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 )
 
 var (
@@ -17,6 +19,11 @@ var (
 func usage() {
 	fmt.Println(`cat [-n] file...`)
 	os.Exit(2)
+}
+
+// hack to detect ctrl+D on windows
+func isEOFHack(line []byte) bool {
+	return runtime.GOOS == "windows" && bytes.Equal(line, []byte{4, 13, 10})
 }
 
 func cat(filename string) {
@@ -35,27 +42,25 @@ func cat(filename string) {
 		return
 	}
 
-	if *nflag {
-		bf := bufio.NewReader(f)
-		for {
-			line, err := bf.ReadBytes('\n')
-			if err != nil && err != io.EOF {
-				fmt.Fprintf(os.Stderr, "read %s: %v\n", filename, err)
-				code = 2
-				return
-			}
-			if len(line) == 0 {
-				return
-			}
+	bf := bufio.NewReader(f)
+	for {
+		line, err := bf.ReadBytes('\n')
+		if err != nil && err != io.EOF {
+			fmt.Fprintf(os.Stderr, "read %s: %v\n", filename, err)
+			code = 2
+			return
+		}
+		if len(line) == 0 || isEOFHack(line) {
+			return
+		}
+		if *nflag {
 			fmt.Printf("%6d\t", n)
-			os.Stdout.Write(line)
-			if len(line) == 0 || line[len(line)-1] != '\n' {
-				os.Stdout.Write([]byte("\n"))
-			}
 			n++
 		}
-	} else {
-		io.Copy(os.Stdout, f)
+		os.Stdout.Write(line)
+		if len(line) == 0 || line[len(line)-1] != '\n' {
+			os.Stdout.Write([]byte("\n"))
+		}
 	}
 }
 
