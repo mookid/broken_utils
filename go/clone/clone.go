@@ -17,7 +17,8 @@ func die(err error) {
 func usage() {
 	println(`usage: clone repo-url
 OPTIONS:
--d                  change destination directory name`)
+-d                  change destination directory name
+-f                  override existing folder`)
 	os.Exit(2)
 }
 
@@ -41,6 +42,7 @@ func fileExists(path string) bool {
 
 func main() {
 	repoDiskName := flag.String("d", "", "")
+	force := flag.Bool("f", false, "")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -54,8 +56,15 @@ func main() {
 	}
 	dst := "D:/src/" + *repoDiskName
 	if fileExists(dst) {
-		fmt.Fprintf(os.Stderr, "destination file %s already exists", dst)
-		os.Exit(2)
+		if *force {
+			if err := os.RemoveAll(dst); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to remove destination directory %s", dst)
+				os.Exit(2)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "destination file %s already exists", dst)
+			os.Exit(2)
+		}
 	}
 	cmd := exec.Command("git", "clone", url, dst)
 	cmd.Stdout = os.Stdout
