@@ -24,6 +24,7 @@ Forward to git diff.
 OPTIONS:
   -c                  View staged changes (--cached)
   -m                  View diff from origin/master
+  -o                  List changed files only (--name-only)
   args                Other args are forwarded to git diff`)
 	os.Exit(2)
 }
@@ -50,6 +51,8 @@ func main() {
 			arg = "--cached"
 		case "-m":
 			arg = inferMainBranchName() + "..."
+		case "-o":
+			arg = "--name-only"
 		case "-h", "--help":
 			usage()
 		}
