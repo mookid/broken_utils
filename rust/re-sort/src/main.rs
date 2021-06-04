@@ -164,9 +164,12 @@ impl Filter {
 
 fn validate_opts(opts: &Opts) -> Filter {
     match &opts.filter {
-        Some(FilterDescr::Re(re)) => match Regex::new(&re) {
-            Ok(ref re) => Filter::Re(re.clone()),
-            Err(e) => die_error("can't compile re", e),
+        Some(FilterDescr::Re(re)) => {
+            let re = format!("(?i){}", re);
+            match Regex::new(&re) {
+                Ok(ref re) => Filter::Re(re.clone()),
+                Err(e) => die_error("can't compile re", e),
+            }
         },
         Some(FilterDescr::Field(nfield)) => Filter::Field(*nfield),
         None => no_filter(),

@@ -47,7 +47,8 @@ struct Opts {
 }
 
 fn compile_re(arg: &str) -> Regex {
-    match Regex::new(arg) {
+    let arg = format!("(?i){}", arg);
+    match Regex::new(&arg) {
         Ok(re) => re,
         Err(e) => die_error("can't compile re", e),
     }
