@@ -61,7 +61,9 @@ func main() {
 	die(err)
 
 	if len(os.Args) == 2 {
-		cmd2 := exec.CommandContext(ctx, "rg", "-i", os.Args[1])
+		arg := os.Args[1]
+		arg = strings.ReplaceAll(arg, "\\", "/")
+		cmd2 := exec.CommandContext(ctx, "rg", "-i", arg)
 		cmd2.Stderr = os.Stderr
 		cmd2.Stdin = results
 		results, err = cmd2.StdoutPipe()
