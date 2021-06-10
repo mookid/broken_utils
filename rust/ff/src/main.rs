@@ -47,6 +47,8 @@ struct Opts {
 }
 
 fn compile_re(arg: &str) -> Regex {
+    let arg = arg.to_string();
+    let arg = arg.replace("\\", "/");
     let arg = format!("(?i){}", arg);
     match Regex::new(&arg) {
         Ok(re) => re,
