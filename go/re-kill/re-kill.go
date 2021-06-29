@@ -153,6 +153,7 @@ func main() {
 		die(cmd2.Start())
 	}
 	cancel = c
+	setupSignals()
 	out := bufio.NewReader(results)
 	die(cmd.Start())
 
