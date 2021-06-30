@@ -2,15 +2,22 @@ package main
 
 import "testing"
 
-func testHdrLength1(t *testing.T, input string, exp int) {
-	actual := hdrLength(input)
-	if actual != exp {
-		t.Errorf("hdrLength(%s): exp: %d actual: %d", input, exp, actual)
-	}
-}
-
 func Test_hdrLength(t *testing.T) {
-	testHdrLength1(t, "123: foo", 3)
-	testHdrLength1(t, "123 foo", 0)
-	testHdrLength1(t, "foo", 0)
+	tt := []struct {
+		line string
+		exp  int
+	}{
+		{"123: foo", 3},
+		{"132 foo", 0},
+		{"foo", 0},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.line, func(t *testing.T) {
+			actual := hdrLength(tc.line)
+			if actual != tc.exp {
+				t.Errorf("hdrLength(%s): exp: %d actual: %d", tc.line, tc.exp, actual)
+			}
+		})
+	}
 }
