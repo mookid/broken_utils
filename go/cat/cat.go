@@ -38,7 +38,7 @@ func cat(filename string) {
 		f, err = os.Open(filename)
 	}
 	if err != nil {
-		fmt.Printf("WARNING: error while opening %s\n", filename)
+		fmt.Fprintf(os.Stderr, "WARNING: error while opening %s\n", filename)
 		return
 	}
 
